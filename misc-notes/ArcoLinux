@@ -1,0 +1,32 @@
+ArcoLinux
+
+If no value is specified, select no options within the category.
+
+01. Kernel
+    - Linux kernel - default
+02. Drivers
+    - as appropriate
+03. Login
+    - SDDM -OR- LightDM
+04. Desktop
+    - XFCE4
+09. Fonts
+    - all
+11. Internet
+    - firefox-ublock-origin
+    - google-chrome
+12. Theming
+    - all
+15. Terminals
+    - alacritty -OR- kitty
+
+Install, reboot, login, and allow packages to update when prompted.
+
+
+Additional packages to consider ...
+- flameshot-gui
+- kali tools
+- vscode
+- ms teams
+- slack
+- 

@@ -1,0 +1,6 @@
+Command=/home/bryan/.local/panel-scripts/menu-ip.sh
+UseLabel=0
+Text=
+UpdatePeriod=15000
+Font=Noto Sans 11
+

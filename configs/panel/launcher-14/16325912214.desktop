@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Terminal
+Comment=Launch Terminal
+Exec=exo-open --launch TerminalEmulator
+Icon=xterm-color_48x48
+Path=
+Terminal=false
+StartupNotify=false

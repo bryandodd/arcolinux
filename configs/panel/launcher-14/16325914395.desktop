@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Root Terminal
+Comment=Launch Terminal as Root
+Exec=pkexec
+Icon=utilities-terminal-root
+Path=
+Terminal=true
+StartupNotify=false
