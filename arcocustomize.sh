@@ -53,6 +53,7 @@
     user_term_launcher="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/panel/launcher-14/16325912214.desktop"
     root_term_launcher="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/panel/launcher-14/16325914395.desktop"
     ip_widget="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/panel/genmon-17.rc"
+    ip_script="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/panel-scripts/menu-ip.sh"
     net_widget="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/panel/netload-21.rc"
 
     panel_conf="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/xfconf/xfce4-panel.xml"
@@ -68,7 +69,7 @@ termPref="kitty"
 vm_install() {
     # For virtual machines only.
 
-    pacman -Sy open-vm-tools --noconfirm
+    pacman -Sy open-vm-tools --needed --noconfirm
     systemctl enable vmtoolsd.service
     echo -e "\n  $greenplus open-vm-tools : installed and enabled"
 }
@@ -167,6 +168,11 @@ xfce4_panel_mod() {
 
     eval wget $ip_widget -O /home/$findUser/.config/xfce4/panel/genmon-17.rc
     echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green genmon IP$color_nocolor widget"
+
+    mkdir -p /home/$findUser/.local/panel-scripts
+    eval wget $ip_script -O /home/$findUser/.local/panel-scripts/menu-ip.sh
+    chmod +x /home/$findUser/.local/panel-scripts/menu-ip.sh
+    echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green genmon IP$color_nocolor shell script"
 
     eval wget $net_widget -O /home/$findUser/.config/xfce4/panel/netload-21.rc
     echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green network monitor$color_nocolor widget"
@@ -286,6 +292,8 @@ fetch_kitty_config() {
     kittyFile="/home/$findUser/.config/kitty/kitty.conf"
     if [[ -f "$kittyFile" ]]; then
         cp $kittyFile /home/$findUser/.config/kitty/kitty.bak
+    else
+        mkdir -p /home/$findUser/.config/kitty
     fi
 
     eval wget $kitty_conf -O $kittyFile
@@ -319,7 +327,9 @@ install_p10k_fonts() {
 # execution
 clear
 echo -e "\n  $blinkwarn INFO : This script does not execute unattended."
-read -n 1 -r -s -p "       Press any key to continue..."
+echo -e "       If you have not updated ALL packages, cancel this script the CTRL+C and do so first. THEN come back and run this script."
+#read -n 1 -r -s -p "       Press any key to continue..."
+read -p "       Press [ENTER] to continue..."
 echo " "
 
 vm_install

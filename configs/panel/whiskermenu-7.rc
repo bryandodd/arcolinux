@@ -1,5 +1,5 @@
 favorites=arcolinux-welcome-app.desktop,arcolinux-tweak-tool.desktop,firefox.desktop,thunar.desktop,xfce4-terminal.desktop,conkyzen.desktop
-recent=xfce4-terminal.desktop,thunar.desktop,kitty.desktop,xfce4-mime-settings.desktop,org.manjaro.pamac.manager.desktop,lightdm-gtk-greeter-settings.desktop,org.gnome.Software.desktop,firefox.desktop,arcolinux-tweak-tool.desktop,xfce4-power-manager-settings.desktop
+recent=
 button-title=ArcoLinux\ \ 
 button-icon=start-here-arcolinux
 button-single-row=false
