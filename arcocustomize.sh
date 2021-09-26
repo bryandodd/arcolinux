@@ -210,7 +210,7 @@ screensaver-timeout = 0
 position = 25%,center 50%,center
 EOF
 )"
-    echo "$gtk_greeter" > /etc/lightdm-gtk-greeter.conf
+    echo "$gtk_greeter" > /etc/lightdm/lightdm-gtk-greeter.conf
     echo -e "\n  $greenstar lightdm-greeter : basic configuration written to$color_light_green /etc/lightdm/lightdm-gtk-greeter.conf$color_nocolor"
 
     echo -e "\n  $blinkwarn Reboot required."
