@@ -24,9 +24,10 @@ Install, reboot, login, and allow packages to update when prompted.
 
 
 Additional packages to consider ...
-- flameshot-gui
++ powerlevel10k
++ python 2 and 3
++ flameshot-gui
++ vscode
++ ms teams
++ slack
 - kali tools
-- vscode
-- ms teams
-- slack
-- 

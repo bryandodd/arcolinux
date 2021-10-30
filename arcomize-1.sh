@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# arcocustomize.sh  Author: Bryan Dodd
+# arcomize-1.sh  Author: Bryan Dodd
 # git clone 
-# Usage: sudo ./arcocustomize.sh  ( defaults to the menu system )
+# Usage: sudo ./arcomize-1.sh
 # command line arguments are valid, only catching 1 arguement
 #
 # Disclaimer: Author assumes no liability for any damage resulting from use, misuse, or any other crazy
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.0.1b"
+    revision="0.1.0"
 
 # colors
     color_nocolor='\e[0m'
@@ -141,13 +141,6 @@ xfce4_panel_mod() {
     #eval $(xmlstarlet edit -P -L --update "//property[@name='position']/@value" --value "p=6;x=1488;y=17" $panelFile)
     #echo -e "\n  $greenstar xfce4-panel : repositioned to top of screen"
 
-    # replace whisker settings
-    whiskerFile="/home/$findUser/.config/xfce4/panel/whiskermenu-7.rc"
-    cp $whiskerFile /home/$findUser/.config/xfce4/panel/whiskermenu-7.bak
-
-    eval wget $whisker_new -O $whiskerFile
-    echo -e "\n  $greenplus whiskermenu : downloaded new configuration file"
-
     # download panel configs
     mkdir -p /home/$findUser/.config/xfce4/panel/launcher-1
     eval wget $sublime_launcher -O /home/$findUser/.config/xfce4/panel/launcher-1/16325907731.desktop
@@ -183,6 +176,13 @@ xfce4_panel_mod() {
 
     eval wget $panel_conf -O $panelFile
     echo -e "\n  $greenplus xfce4 panel config : downloaded new configuration file"
+
+    # replace whisker settings
+    whiskerFile="/home/$findUser/.config/xfce4/panel/whiskermenu-7.rc"
+    cp $whiskerFile /home/$findUser/.config/xfce4/panel/whiskermenu-7.bak
+
+    eval wget $whisker_new -O $whiskerFile
+    echo -e "\n  $greenplus whiskermenu : downloaded new configuration file"
 
     echo -e "\n  $blinkwarn Reboot required."
 }
@@ -317,25 +317,32 @@ install_p10k_fonts() {
     mesloNerdFont="paru -Sy ttf-meslo-nerd-font-powerlevel10k --needed"
     awesomeTerminalFont="paru -Sy awesome-terminal-fonts --needed"
     powerlineGitFont="paru -Sy powerline-fonts-git --needed"
+    jetbrainsNerdFont="paru -Sy nerd-fonts-jetbrains-mono --needed"
 
     sudo -u $findUser $mesloNerdFont
     sudo -u $findUser $awesomeTerminalFont
     sudo -u $findUser $powerlineGitFont
+    sudo -u $findUser $jetbrainsNerdFont
 }
 
 
 # execution
+if [ "$(id -u)" -ne 0 ]; then
+    echo -e "\n$blinkexclaim ERROR : This script must be run as root. Run again with 'sudo'."
+    exit 1
+fi
+
 clear
-echo -e "\n  $blinkwarn INFO : This script does not execute unattended."
-echo -e "       If you have not updated ALL packages, cancel this script the CTRL+C and do so first. THEN come back and run this script."
+echo -e "\n$blinkwarn NOTICE : This script is not intended for UNATTENDED execution."
+echo -e "If you have not updated ALL packages, cancel this script with CTRL+C and do so first. THEN come back and run this script."
+echo -e "\nThis script is the first of multiple. After completion of this script, reboot the system and proceed with additional scripts."
 #read -n 1 -r -s -p "       Press any key to continue..."
-read -p "       Press [ENTER] to continue..."
+read -p "Press [ENTER] to continue..."
 echo " "
 
 vm_install
 required_apps
 disable_power_mgmt
-xfce4_panel_mod
 switch_to_lightdm
 xfce4_thunar_terminal
 xfce4_helpers_terminal
@@ -343,7 +350,8 @@ delete_variety_app
 revert_network_naming
 fetch_kitty_config
 switch_to_zsh
+xfce4_panel_mod
 install_p10k_fonts
 ##preferred_apps
 
-echo -e "\n  $blinkwarn COMPLETE : Reboot required."
+echo -e "\n  $blinkwarn COMPLETE : Reboot required. Proceed with any additional scripts after successful restart."
