@@ -4,14 +4,19 @@ The scripts and config files presented here are intended solely for my personal 
 
 Scripts are intended to be executed in sequence with full reboots between executions.
 
-
-## Execution
+#### Execution
 
 You'll need to make each script executable ...
 ``` bash
 sudo chmod +x arcomize-1.sh
 ```
-#### arcomize-1.sh
+----
+Sections in this document:
+* [arcomize-1.sh](https://github.com/bryandodd/arcolinux#arcomize-1sh) - Initial OS configuration and settings.
+* [arcomize-2.sh](https://github.com/bryandodd/arcolinux#arcomize-2sh) - ZSH configuration and custom applications.
+* [custom aliases](https://github.com/bryandodd/arcolinux#customized-aliases)
+
+## arcomize-1.sh
 
 There is one variable you may wish to change near the top (~line 67) of this script: `termPref`.  By default, the script will configure `kitty` as the default terminal emulator for the OS. At present, the only other supported option is `alacritty`.
 
@@ -55,7 +60,7 @@ The following modules will be executed in the order listed:
     * Note that conflicts will arise. You'll have to decide how you want to handle them during script execution.
 
 
-#### arcomize-2.sh
+## arcomize-2.sh
 
 The script will exit with an error if you do not run with `sudo`.
 
@@ -93,7 +98,7 @@ The following tools/applications will be installed in the order listed below. Th
     * For Kubernetes. Installed from the `community` repository. 
 
 
-#### customized aliases
+## customized aliases
 The `.aliases` file which will be copied by the script can be found in `/configs/zsh/.aliases`. 
 
 The majority fo the aliases in this file come straight from ArcoLinux, but several have been commented out for my own preferences. As mentioned above in `arcomize-2.sh`, some of the aliases will be modified by the second script. These include:
