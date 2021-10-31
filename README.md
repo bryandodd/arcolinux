@@ -126,4 +126,9 @@ A few additional helpers have been added to the `.aliases` file outside of those
 
 ## fixes
 
-* 2021-10-31 : A couple of the repo-hosted config files referenced my specific username in paths. Fixed so they'll be updated to the current user correctly after download from repo.
+* 2021-10-31
+    * a couple of the repo-hosted config files referenced my specific username in paths. Fixed so they'll be updated to the current user correctly after download from repo
+    * cleaned up old comments
+    * several various bug fixes
+    * add cpu detection and microcode install
+    * fix for some apps that can't be installed as root
