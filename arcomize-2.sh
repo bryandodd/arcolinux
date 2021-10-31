@@ -237,7 +237,8 @@ install_bat() {
     fi
 
     # Create the bat config file
-    bat --generate-config-file
+    genConfigFile="bat --generate-config-file"
+    sudo -u $findUser $genConfigFile
     echo -e "\n  $greenplus bat : generated default config file"
 
     batConfig="/home/$findUser/.config/bat/config"
@@ -313,7 +314,8 @@ install_aws_iam_authenticator() {
 
     paru -Q aws-iam-authenticator-bin > /dev/null 2>&1
     if [[ $? -ne 0 ]]; then
-        paru -Sy aur/aws-iam-authenticator-bin --needed --noconfirm
+        installAwsIamAuth="paru -Sy aur/aws-iam-authenticator-bin --needed --noconfirm"
+        sudo -u $findUser $installAwsIamAuth
         echo -e "\n  $greenplus AWS IAM Authenticator : installed"
     fi
 }
