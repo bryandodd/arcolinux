@@ -10,7 +10,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.0.1"
+    revision="0.1.1"
 
 # colors
     color_nocolor='\e[0m'
@@ -320,7 +320,6 @@ clear
 echo -e "\n$blinkwarn NOTICE : This script is not intended for UNATTENDED execution."
 echo -e "If you have not updated ALL packages, cancel this script with CTRL+C and do so first. THEN come back and run this script."
 echo -e "\nThis script is the second of multiple and depends on execution of arcomize-1.sh previously. After completion of this script, reboot the system and proceed with additional scripts."
-#read -n 1 -r -s -p "       Press any key to continue..."
 read -p "Press [ENTER] to continue..."
 echo " "
 
