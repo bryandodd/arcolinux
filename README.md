@@ -4,6 +4,8 @@ The scripts and config files presented here are intended solely for my personal 
 
 Scripts are intended to be executed in sequence with full reboots between executions.
 
+[Fixes](https://github.com/bryandodd/arcolinux#fixes) are noted at the bottom.
+
 #### Execution
 
 You'll need to make each script executable ...
@@ -120,3 +122,8 @@ A few additional helpers have been added to the `.aliases` file outside of those
     * takes a Tiny-URL as a string and attempts to return back the ultimate destination of the URL
 * `df` 
     * uses `duf` to present disk information in an easy to read format. See [muesli/duf](https://github.com/muesli/duf) on GitHub for details. 
+
+
+## fixes
+
+* 2021-10-31 : A couple of the repo-hosted config files referenced my specific username in paths. Fixed so they'll be updated to the current user correctly after download from repo.
