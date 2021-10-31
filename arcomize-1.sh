@@ -9,7 +9,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.1.0"
+    revision="0.1.1"
 
 # colors
     color_nocolor='\e[0m'
@@ -82,17 +82,6 @@ required_apps() {
     fi
 }
 
-preferred_apps() {
-    # A personal list of preferred applications.
-    pacman -Q gedit > /dev/null 2>&1
-    if [[ $? -ne 0 ]]; then
-        pacman -Sy gedit --noconfirm
-        echo -e "\n  $greenplus gedit : installed"
-    else
-        echo -e "\n  $yellowstar gedit : already installed"
-    fi
-}
-
 disable_power_mgmt() {
     # Set screen blanking / sleep to 0 and then disable power management entirely.
     # Values are zeroed out in the event that power management gets turned back on accidentally.
@@ -133,14 +122,6 @@ disable_power_mgmt() {
 xfce4_panel_mod() {
     # Set preferences for the xfce4 main panel
 
-    ## move the panel to the top of the screen
-
-    
-
-    ##eval $(xfconf-query -c xfce4-panel -p /panels/panel-1/position -t string -s 'p=6;x=1488;y=17')
-    #eval $(xmlstarlet edit -P -L --update "//property[@name='position']/@value" --value "p=6;x=1488;y=17" $panelFile)
-    #echo -e "\n  $greenstar xfce4-panel : repositioned to top of screen"
-
     # download panel configs
     mkdir -p /home/$findUser/.config/xfce4/panel/launcher-1
     eval wget $sublime_launcher -O /home/$findUser/.config/xfce4/panel/launcher-1/16325907731.desktop
@@ -159,8 +140,13 @@ xfce4_panel_mod() {
     eval wget $root_term_launcher -O /home/$findUser/.config/xfce4/panel/launcher-14/16325914395.desktop
     echo -e "\n  $greenplus xfce4 launcher : downloaded$color_light_green Terminal$color_nocolor launchers (user + root)"
 
-    eval wget $ip_widget -O /home/$findUser/.config/xfce4/panel/genmon-17.rc
+    genmonFile="/home/$findUser/.config/xfce4/panel/genmon-17.rc"
+    eval wget $ip_widget -O $genmonFile
     echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green genmon IP$color_nocolor widget"
+    # fix menu-ip.sh path - set to match current user
+    fixMenuIPPath="/home/$findUser/.local/panel-scripts/menu-ip.sh"
+    eval $(sed -i "1s|.*|$fixMenuIPPath|" $genmonFile)
+    echo -e "\n  $greenstar xfce4 panel : updated script path for$color_light_green IP$color_nocolor widget to match current user"
 
     mkdir -p /home/$findUser/.local/panel-scripts
     eval wget $ip_script -O /home/$findUser/.local/panel-scripts/menu-ip.sh
@@ -176,6 +162,9 @@ xfce4_panel_mod() {
 
     eval wget $panel_conf -O $panelFile
     echo -e "\n  $greenplus xfce4 panel config : downloaded new configuration file"
+    # fix base-directory path - set to match current user
+    eval $(xmlstarlet edit -P --update "//property[@name='base-directory']/@value" --value "/home/$findUser" $panelFile)
+    echo -e "\n  $greenstar xfce4 panel config : updated base-directory to match current user"
 
     # replace whisker settings
     whiskerFile="/home/$findUser/.config/xfce4/panel/whiskermenu-7.rc"
@@ -183,8 +172,6 @@ xfce4_panel_mod() {
 
     eval wget $whisker_new -O $whiskerFile
     echo -e "\n  $greenplus whiskermenu : downloaded new configuration file"
-
-    echo -e "\n  $blinkwarn Reboot required."
 }
 
 switch_to_lightdm() {
@@ -222,9 +209,6 @@ xfce4_thunar_terminal() {
     ucaFile="/home/$findUser/.config/Thunar/uca.xml"
     cp $ucaFile /home/$findUser/.config/Thunar/uca.bak
 
-    #xmlstarlet edit -P -L --update '/actions/action[name = "Run"]/command' -v "alacritty -e %f" /home/bryan/.config/Thunar/uca.xml
-    #eval $(xmlstarlet edit -P -L --update '/actions/action[name = "Run"]/command' -v "alacritty -e %f" $ucaFile)
-
     case $termPref in
         kitty)
             eval $(xmlstarlet edit -P -L --update '/actions/action[name = "Run"]/command' -v "kitty %f" $ucaFile)
@@ -247,11 +231,6 @@ xfce4_helpers_terminal() {
 
     termEmuDesktop="/home/$findUser/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop"
     cp $termEmuDesktop /home/$findUser/.local/share/xfce4/helpers/custom-TerminalEmulator.bak
-
-    #eval $(awk -i inplace '/^X-XFCE-CommandsWithParameter=/{$0="X-XFCE-CommandsWithParameter=alacritty \"%s\""}1' $termEmuDesktop)
-    #eval $(awk -i inplace '/^Icon=/{$0="Icon=alacritty"}1' $termEmuDesktop)
-    #eval $(awk -i inplace '/^Name=/{$0="Name=alacritty"}1' $termEmuDesktop)
-    #eval $(awk -i inplace '/^X-XFCE-Commands=/{$0="X-XFCE-Commands=alacritty"}1' $termEmuDesktop)
 
     case $termPref in
         kitty)
@@ -336,11 +315,10 @@ clear
 echo -e "\n$blinkwarn NOTICE : This script is not intended for UNATTENDED execution."
 echo -e "If you have not updated ALL packages, cancel this script with CTRL+C and do so first. THEN come back and run this script."
 echo -e "\nThis script is the first of multiple. After completion of this script, reboot the system and proceed with additional scripts."
-#read -n 1 -r -s -p "       Press any key to continue..."
 read -p "Press [ENTER] to continue..."
 echo " "
 
-vm_install
+#vm_install
 required_apps
 disable_power_mgmt
 switch_to_lightdm
@@ -352,6 +330,5 @@ fetch_kitty_config
 switch_to_zsh
 xfce4_panel_mod
 install_p10k_fonts
-##preferred_apps
 
 echo -e "\n  $blinkwarn COMPLETE : Reboot required. Proceed with any additional scripts after successful restart."
