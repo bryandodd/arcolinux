@@ -10,7 +10,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.1.1"
+    revision="0.1.2"
 
 # colors
     color_nocolor='\e[0m'
@@ -54,7 +54,16 @@
     aws_update_script="https://raw.githubusercontent.com/bryandodd/arcolinux/main/scripts/update-aws-cli.sh"
     aws_remove_script="https://raw.githubusercontent.com/bryandodd/arcolinux/main/scripts/remove-aws-cli.sh"
 
+
 findUser=$(logname)
+userId=$(id -u $findUser)
+userGroup=$(id -g -n $findUser)
+userGroupId=$(id -g $findUser)
+
+sudoUser=$(whoami)
+sudoId=$(id -u $sudoUser)
+sudoGroup=$(id -g -n $sudoUser)
+sudoGroupId=$(id -g $sudoUser)
 
 
 install_p10k() {
@@ -74,8 +83,9 @@ install_p10k() {
     zshFile="/home/$findUser/.zshrc"
     cp $zshFile /home/$findUser/.zshbak
 
-    eval wget $zshrc_new -O $zshFile
+    eval wget -q $zshrc_new -O $zshFile
     echo -e "\n  $greenplus zshrc : replaced zshrc with file from repo"
+    chown $findUser:$userGroup $zshFile
 
     # copy aliases from repo
     aliasesFile="/home/$findUser/.aliases"
@@ -83,8 +93,9 @@ install_p10k() {
         cp $aliasesFile /home/$findUser/.aliasesbak
     fi
 
-    eval wget $aliases_new -O $aliasesFile
+    eval wget -q $aliases_new -O $aliasesFile
     echo -e "\n  $greenplus aliases : copied aliases file from repo"
+    chown $findUser:$userGroup $aliasesFile
 
     # copy p10k.zsh from repo
     p10kFile="/home/$findUser/.p10k.zsh"
@@ -92,8 +103,9 @@ install_p10k() {
         cp $p10kFile /home/$findUser/.p10k.bak
     fi
 
-    eval wget $p10k_new -O $p10kFile
+    eval wget -q $p10k_new -O $p10kFile
     echo -e "\n  $greenplus p10k.zsh : copied p10k config from repo"
+    chown $findUser:$userGroup $p10kFile
 }
 
 install_python() {
@@ -168,13 +180,15 @@ install_vscode() {
 
     # Insert aliases for VSCode
     aliasesFile="/home/$findUser/.aliases"
-    eval $(sed -i '/^## End Additional H.*/i alias hosts=\"code /etc/hosts\"\nalias profile=\"code ~/.zshrc\"' $aliasesFile)
+    sed -i '/^## End Additional H.*/i alias hosts=\"code /etc/hosts\"\nalias profile=\"code ~/.zshrc\"' $aliasesFile
     echo -e "\n  $greenstar alias added : 'hosts' and 'profile' will open respective files with$color_light_green vscode$color_nocolor"
+    chown $findUser:$userGroup $aliasesFile
 
     # Set ZSH variable for Kubernetes Editor
     zshFile="/home/$findUser/.zshrc"
-    eval $(sed -i '/^export VISUAL=.*/a export KUBE_EDITOR=\"code --wait\"' $zshFile)
+    sed -i '/^export VISUAL=.*/a export KUBE_EDITOR=\"code --wait\"' $zshFile
     echo -e "\n  $greenstar zsh variable added : KUBE_EDITOR set to$color_light_green vscode$color_nocolor"
+    chown $findUser:$userGroup $zshFile
 }
 
 install_msteams() {
@@ -208,8 +222,9 @@ install_exa() {
 
     # Update aliases to call 'exa' instead of 'ls'
     aliasesFile="/home/$findUser/.aliases"
-    eval $(awk -i inplace '/^alias ll=/{$0="alias ll=\"exa -lah --icons --group-directories-first --time-style long-iso --git\""}1' $aliasesFile)
+    awk -i inplace '/^alias ll=/{$0="alias ll=\"exa -lah --icons --group-directories-first --time-style long-iso --git\""}1' $aliasesFile
     echo -e "\n  $greenstar alias updated : 'll' set to$color_light_green exa$color_nocolor"
+    chown $findUser:$userGroup $aliasesFile
 }
 
 install_bat() {
@@ -228,13 +243,15 @@ install_bat() {
     batConfig="/home/$findUser/.config/bat/config"
     cp $batConfig /home/$findUser/.config/bat/.bakconfig
 
-    eval wget $bat_new -O $batConfig
+    eval wget -q $bat_new -O $batConfig
     echo -e "\n  $greenstar bat : replaced config with file from repo"
+    chown $findUser:$userGroup $batConfig
 
     # Insert aliases to call 'bat' instead of 'cat'
     aliasesFile="/home/$findUser/.aliases"
-    eval $(sed -i '/^alias l\.=.*/a \\n# see the bat config file in ~/.config/bat/config for other settings\nalias cat=\"bat -P\"\nalias cat-page=\"bat\"' $aliasesFile)
+    sed -i '/^alias l\.=.*/a \\n# see the bat config file in ~/.config/bat/config for other settings\nalias cat=\"bat -P\"\nalias cat-page=\"bat\"' $aliasesFile
     echo -e "\n  $greenstar alias added : 'cat' set to$color_light_green bat$color_nocolor"
+    chown $findUser:$userGroup $aliasesFile
 }
 
 install_oathtoolkit() {
@@ -250,14 +267,15 @@ install_oathtoolkit() {
 install_aws_cli_script() {
     [ -d /home/$findUser/.local/helper-scripts ] || mkdir /home/$findUser/.local/helper-scripts
     awsScriptFile="/home/$findUser/.local/helper-scripts/update-aws-cli.sh"
-    eval wget $aws_update_script -O $awsScriptFile
+    eval wget -q $aws_update_script -O $awsScriptFile
     echo -e "\n  $greenplus scripts : downloaded$color_light_green update-aws-cli.sh$color_nocolor helper from repo"
-    eval wget $aws_remove_script -O /home/$findUser/.local/helper-scripts/remove-aws-cli.sh
+    eval wget -q $aws_remove_script -O /home/$findUser/.local/helper-scripts/remove-aws-cli.sh
     echo -e "\n  $greenplus scripts : downloaded$color_light_green remove-aws-cli.sh$color_nocolor helper from repo"
     chmod +x $awsScriptFile
     bash $awsScriptFile
 
     echo -e "\n  $bluestar Subscript execution finished :$color_other_yellow update-aws-cli.sh $color_nocolor"
+    chown -R $findUser:$userGroup /home/$findUser/.local/helper-scripts
 }
 
 install_aws_cli() {

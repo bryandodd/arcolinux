@@ -9,7 +9,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.1.1"
+    revision="0.1.2"
 
 # colors
     color_nocolor='\e[0m'
@@ -62,9 +62,27 @@
 
 
 findUser=$(logname)
+userId=$(id -u $findUser)
+userGroup=$(id -g -n $findUser)
+userGroupId=$(id -g $findUser)
+
+sudoUser=$(whoami)
+sudoId=$(id -u $sudoUser)
+sudoGroup=$(id -g -n $sudoUser)
+sudoGroupId=$(id -g $sudoUser)
 
 # terminal preference (kitty -or- alacritty)
 termPref="kitty"
+
+fix_local_permissions() {
+    chown -R $findUser:$userGroup /home/$findUser/.config
+    echo -e "\n  $cyanstar permissions : set$color_other_yellow $findUser $color_nocolor as owner of$color_other_yellow ~/.config $color_nocolor"
+}
+
+fix_config_permissions() {
+    chown -R $findUser:$userGroup /home/$findUser/.config
+    echo -e "\n  $cyanstar permissions : set$color_other_yellow $findUser $color_nocolor as owner of$color_other_yellow ~/.config $color_nocolor"
+}
 
 vm_install() {
     # For virtual machines only.
@@ -87,34 +105,36 @@ disable_power_mgmt() {
     # Values are zeroed out in the event that power management gets turned back on accidentally.
 
     # settings for USER
+
     userPowerConf="/home/$findUser/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml"
     cp $userPowerConf /home/$findUser/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.bak
 
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-sleep']/@value" --value "0" $userPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-off']/@value" --value "0" $userPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='blank-on-ac']/@value" --value "0" $userPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-sleep']/@value" --value "0" $userPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-off']/@value" --value "0" $userPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='blank-on-battery']/@value" --value "0" $userPowerConf)
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-sleep']/@value" --value "0" $userPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-off']/@value" --value "0" $userPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='blank-on-ac']/@value" --value "0" $userPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-sleep']/@value" --value "0" $userPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-off']/@value" --value "0" $userPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='blank-on-battery']/@value" --value "0" $userPowerConf
     userPowerDisabled=$(xmlstarlet sel -t -v "count(//property[@name='dpms-enabled'])" $userPowerConf)
     if [[ $userPowerDisabled -ne 1 ]]; then
-        eval $(xmlstarlet edit -P -L -s "/channel[@name='xfce4-power-manager']/property[@name='xfce4-power-manager']" -t elem -n "propertyTemp" -v "" -i "//propertyTemp" -t attr -n "name" -v "dpms-enabled" -i "//propertyTemp" -t attr -n "type" -v "bool" -i "//propertyTemp" -t attr -n "value" -v "false" -r "//propertyTemp" -v "property" $userPowerConf)
+        xmlstarlet edit -P -L -s "/channel[@name='xfce4-power-manager']/property[@name='xfce4-power-manager']" -t elem -n "propertyTemp" -v "" -i "//propertyTemp" -t attr -n "name" -v "dpms-enabled" -i "//propertyTemp" -t attr -n "type" -v "bool" -i "//propertyTemp" -t attr -n "value" -v "false" -r "//propertyTemp" -v "property" $userPowerConf
     fi
     echo -e "\n  $greenstar power management : USER configured for zero timeout and disabled"
+    fix_config_permissions
 
     # settings for ROOT
     rootPowerConf="/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml"
     cp $rootPowerConf /root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.bak
 
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-sleep']/@value" --value "0" $rootPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-off']/@value" --value "0" $rootPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='blank-on-ac']/@value" --value "0" $rootPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-sleep']/@value" --value "0" $rootPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-off']/@value" --value "0" $rootPowerConf)
-    eval $(xmlstarlet edit -P -L --update "//property[@name='blank-on-battery']/@value" --value "0" $rootPowerConf)
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-sleep']/@value" --value "0" $rootPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-ac-off']/@value" --value "0" $rootPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='blank-on-ac']/@value" --value "0" $rootPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-sleep']/@value" --value "0" $rootPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='dpms-on-battery-off']/@value" --value "0" $rootPowerConf
+    xmlstarlet edit -P -L --update "//property[@name='blank-on-battery']/@value" --value "0" $rootPowerConf
     rootPowerDisabled=$(xmlstarlet sel -t -v "count(//property[@name='dpms-enabled'])" $rootPowerConf)
     if [[ $rootPowerDisabled -ne 1 ]]; then
-        eval $(xmlstarlet edit -P -L -s "/channel[@name='xfce4-power-manager']/property[@name='xfce4-power-manager']" -t elem -n "propertyTemp" -v "" -i "//propertyTemp" -t attr -n "name" -v "dpms-enabled" -i "//propertyTemp" -t attr -n "type" -v "bool" -i "//propertyTemp" -t attr -n "value" -v "false" -r "//propertyTemp" -v "property" $rootPowerConf)
+        xmlstarlet edit -P -L -s "/channel[@name='xfce4-power-manager']/property[@name='xfce4-power-manager']" -t elem -n "propertyTemp" -v "" -i "//propertyTemp" -t attr -n "name" -v "dpms-enabled" -i "//propertyTemp" -t attr -n "type" -v "bool" -i "//propertyTemp" -t attr -n "value" -v "false" -r "//propertyTemp" -v "property" $rootPowerConf
     fi
     echo -e "\n  $greenstar power management : ROOT configured for zero timeout and disabled"
 }
@@ -124,54 +144,57 @@ xfce4_panel_mod() {
 
     # download panel configs
     mkdir -p /home/$findUser/.config/xfce4/panel/launcher-1
-    eval wget $sublime_launcher -O /home/$findUser/.config/xfce4/panel/launcher-1/16325907731.desktop
+    eval wget -q $sublime_launcher -O /home/$findUser/.config/xfce4/panel/launcher-1/16325907731.desktop
     echo -e "\n  $greenplus xfce4 launcher : downloaded$color_light_green Sublime$color_nocolor launcher"
 
     mkdir -p /home/$findUser/.config/xfce4/panel/launcher-12
-    eval wget $firefox_launcher -O /home/$findUser/.config/xfce4/panel/launcher-12/16325911012.desktop
+    eval wget -q $firefox_launcher -O /home/$findUser/.config/xfce4/panel/launcher-12/16325911012.desktop
     echo -e "\n  $greenplus xfce4 launcher : downloaded$color_light_green Firefox$color_nocolor launcher"
 
     mkdir -p /home/$findUser/.config/xfce4/panel/launcher-13
-    eval wget $chrome_launcher -O /home/$findUser/.config/xfce4/panel/launcher-13/16325911153.desktop
+    eval wget -q $chrome_launcher -O /home/$findUser/.config/xfce4/panel/launcher-13/16325911153.desktop
     echo -e "\n  $greenplus xfce4 launcher : downloaded$color_light_green Chrome$color_nocolor launcher"
 
     mkdir -p /home/$findUser/.config/xfce4/panel/launcher-14
-    eval wget $user_term_launcher -O /home/$findUser/.config/xfce4/panel/launcher-14/16325912214.desktop
-    eval wget $root_term_launcher -O /home/$findUser/.config/xfce4/panel/launcher-14/16325914395.desktop
+    eval wget -q $user_term_launcher -O /home/$findUser/.config/xfce4/panel/launcher-14/16325912214.desktop
+    eval wget -q $root_term_launcher -O /home/$findUser/.config/xfce4/panel/launcher-14/16325914395.desktop
     echo -e "\n  $greenplus xfce4 launcher : downloaded$color_light_green Terminal$color_nocolor launchers (user + root)"
 
     genmonFile="/home/$findUser/.config/xfce4/panel/genmon-17.rc"
-    eval wget $ip_widget -O $genmonFile
+    eval wget -q $ip_widget -O $genmonFile
     echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green genmon IP$color_nocolor widget"
     # fix menu-ip.sh path - set to match current user
     fixMenuIPPath="/home/$findUser/.local/panel-scripts/menu-ip.sh"
-    eval $(sed -i "1s|.*|$fixMenuIPPath|" $genmonFile)
+    sed -i "1s|.*|$fixMenuIPPath|" $genmonFile
     echo -e "\n  $greenstar xfce4 panel : updated script path for$color_light_green IP$color_nocolor widget to match current user"
 
     mkdir -p /home/$findUser/.local/panel-scripts
-    eval wget $ip_script -O /home/$findUser/.local/panel-scripts/menu-ip.sh
+    eval wget -q $ip_script -O /home/$findUser/.local/panel-scripts/menu-ip.sh
     chmod +x /home/$findUser/.local/panel-scripts/menu-ip.sh
     echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green genmon IP$color_nocolor shell script"
 
-    eval wget $net_widget -O /home/$findUser/.config/xfce4/panel/netload-21.rc
+    eval wget -q $net_widget -O /home/$findUser/.config/xfce4/panel/netload-21.rc
     echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green network monitor$color_nocolor widget"
 
     # backup xfce4-panel config
     panelFile="/home/$findUser/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
     cp $panelFile /home/$findUser/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.bak
 
-    eval wget $panel_conf -O $panelFile
+    eval wget -q $panel_conf -O $panelFile
     echo -e "\n  $greenplus xfce4 panel config : downloaded new configuration file"
     # fix base-directory path - set to match current user
-    eval $(xmlstarlet edit -P -L --update "//property[@name='base-directory']/@value" --value "/home/$findUser" $panelFile)
+    xmlstarlet edit -P -L --update "//property[@name='base-directory']/@value" --value "/home/$findUser" $panelFile
     echo -e "\n  $greenstar xfce4 panel config : updated base-directory to match current user"
 
     # replace whisker settings
     whiskerFile="/home/$findUser/.config/xfce4/panel/whiskermenu-7.rc"
     cp $whiskerFile /home/$findUser/.config/xfce4/panel/whiskermenu-7.bak
 
-    eval wget $whisker_new -O $whiskerFile
+    eval wget -q $whisker_new -O $whiskerFile
     echo -e "\n  $greenplus whiskermenu : downloaded new configuration file"
+
+    fix_local_permissions
+    fix_config_permissions
 }
 
 switch_to_lightdm() {
@@ -211,19 +234,20 @@ xfce4_thunar_terminal() {
 
     case $termPref in
         kitty)
-            eval $(xmlstarlet edit -P -L --update '/actions/action[name = "Run"]/command' -v "kitty %f" $ucaFile)
-            eval $(xmlstarlet edit -P -L --update '/actions/action[name = "Open Terminal Here"]/command' -v "kitty" $ucaFile)
+            xmlstarlet edit -P -L --update '/actions/action[name = "Run"]/command' -v "kitty %f" $ucaFile
+            xmlstarlet edit -P -L --update '/actions/action[name = "Open Terminal Here"]/command' -v "kitty" $ucaFile
             echo -e "\n  $greenstar thunar : Terminal preferences set to use$color_light_green KITTY$color_nocolor"
             ;;
         alacritty)
-            eval $(xmlstarlet edit -P -L --update '/actions/action[name = "Run"]/command' -v "alacritty -e %f" $ucaFile)
-            eval $(xmlstarlet edit -P -L --update '/actions/action[name = "Open Terminal Here"]/command' -v "alacritty" $ucaFile)
+            xmlstarlet edit -P -L --update '/actions/action[name = "Run"]/command' -v "alacritty -e %f" $ucaFile
+            xmlstarlet edit -P -L --update '/actions/action[name = "Open Terminal Here"]/command' -v "alacritty" $ucaFile
             echo -e "\n  $greenstar thunar : Terminal preferences set to use$color_light_green ALACRITTY$color_nocolor"
             ;;
         *)
             echo -e "\n  $yellowstar thunar : Unsupported terminal specified, defaults unchanged"
             ;;
     esac
+    fix_config_permissions
 }
 
 xfce4_helpers_terminal() {
@@ -234,23 +258,24 @@ xfce4_helpers_terminal() {
 
     case $termPref in
         kitty)
-            eval $(awk -i inplace '/^X-XFCE-CommandsWithParameter=/{$0="X-XFCE-CommandsWithParameter=kitty \"%s\""}1' $termEmuDesktop)
-            eval $(awk -i inplace '/^Icon=/{$0="Icon=kitty"}1' $termEmuDesktop)
-            eval $(awk -i inplace '/^Name=/{$0="Name=kitty"}1' $termEmuDesktop)
-            eval $(awk -i inplace '/^X-XFCE-Commands=/{$0="X-XFCE-Commands=kitty"}1' $termEmuDesktop)
+            awk -i inplace '/^X-XFCE-CommandsWithParameter=/{$0="X-XFCE-CommandsWithParameter=kitty \"%s\""}1' $termEmuDesktop
+            awk -i inplace '/^Icon=/{$0="Icon=kitty"}1' $termEmuDesktop
+            awk -i inplace '/^Name=/{$0="Name=kitty"}1' $termEmuDesktop
+            awk -i inplace '/^X-XFCE-Commands=/{$0="X-XFCE-Commands=kitty"}1' $termEmuDesktop
             echo -e "\n  $greenstar default apps : default terminal emulator set to$color_light_green KITTY$color_nocolor"
             ;;
         alacritty)
-            eval $(awk -i inplace '/^X-XFCE-CommandsWithParameter=/{$0="X-XFCE-CommandsWithParameter=alacritty \"%s\""}1' $termEmuDesktop)
-            eval $(awk -i inplace '/^Icon=/{$0="Icon=alacritty"}1' $termEmuDesktop)
-            eval $(awk -i inplace '/^Name=/{$0="Name=alacritty"}1' $termEmuDesktop)
-            eval $(awk -i inplace '/^X-XFCE-Commands=/{$0="X-XFCE-Commands=alacritty"}1' $termEmuDesktop)
+            awk -i inplace '/^X-XFCE-CommandsWithParameter=/{$0="X-XFCE-CommandsWithParameter=alacritty \"%s\""}1' $termEmuDesktop
+            awk -i inplace '/^Icon=/{$0="Icon=alacritty"}1' $termEmuDesktop
+            awk -i inplace '/^Name=/{$0="Name=alacritty"}1' $termEmuDesktop
+            awk -i inplace '/^X-XFCE-Commands=/{$0="X-XFCE-Commands=alacritty"}1' $termEmuDesktop
             echo -e "\n  $greenstar default apps : default terminal emulator set to$color_light_green ALACRITTY$color_nocolor"
             ;;
         *)
             echo -e "\n  $yellowstar default apps : Unsupported terminal specified, defaults unchanged"
             ;;
     esac
+    fix_local_permissions
 }
 
 delete_variety_app() {
@@ -263,7 +288,7 @@ delete_variety_app() {
 
 revert_network_naming() {
     # See: https://wiki.archlinux.org/title/Network_configuration#Revert_to_traditional_interface_names
-    eval $(ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules)
+    ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
     echo -e "\n  $greenstar network : reverted to traditional interface naming"
 }
 
@@ -275,15 +300,15 @@ fetch_kitty_config() {
         mkdir -p /home/$findUser/.config/kitty
     fi
 
-    eval wget $kitty_conf -O $kittyFile
+    eval wget -q $kitty_conf -O $kittyFile
     echo -e "\n  $greenplus kitty : downloaded new configuration file"
-
+    fix_config_permissions
 }
 
 switch_to_zsh() {
     # Switch from BASH to ZSH
 
-    eval $(chsh $findUser -s /bin/zsh)
+    chsh $findUser -s /bin/zsh
     echo -e "\n  $greenstar terminal : changed from bash to$color_light_green zsh$color_nocolor"
     echo -e "\n  $blinkwarn Reboot required."
 }
