@@ -163,7 +163,7 @@ xfce4_panel_mod() {
     eval wget $panel_conf -O $panelFile
     echo -e "\n  $greenplus xfce4 panel config : downloaded new configuration file"
     # fix base-directory path - set to match current user
-    eval $(xmlstarlet edit -P --update "//property[@name='base-directory']/@value" --value "/home/$findUser" $panelFile)
+    eval $(xmlstarlet edit -P -L --update "//property[@name='base-directory']/@value" --value "/home/$findUser" $panelFile)
     echo -e "\n  $greenstar xfce4 panel config : updated base-directory to match current user"
 
     # replace whisker settings
