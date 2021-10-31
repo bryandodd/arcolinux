@@ -165,7 +165,7 @@ xfce4_panel_mod() {
     echo -e "\n  $greenplus xfce4 panel : downloaded$color_light_green genmon IP$color_nocolor widget"
     # fix menu-ip.sh path - set to match current user
     fixMenuIPPath="/home/$findUser/.local/panel-scripts/menu-ip.sh"
-    sed -i "1s|.*|$fixMenuIPPath|" $genmonFile
+    sed -i "1s|.*|Command=$fixMenuIPPath|" $genmonFile
     echo -e "\n  $greenstar xfce4 panel : updated script path for$color_light_green IP$color_nocolor widget to match current user"
 
     mkdir -p /home/$findUser/.local/panel-scripts
