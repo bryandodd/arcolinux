@@ -327,6 +327,29 @@ install_eksctl() {
     fi
 }
 
+check_architecture() {
+    cpuVendor=$(lscpu -J | jq '.lscpu[] | select(.field=="Vendor ID:") | .data' -r)
+    if [ $cpuVendor == "GenuineIntel" ]
+    then
+        echo -e "\n  $cyanstar CPU Detection :$color_other_yellow INTEL$color_nocolor detected. Installing Intel microcode ..."
+        paru -Q intel-ucode > /dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            paru -Sy extra/intel-ucode --needed --noconfirm
+            echo -e "\n  $greenplus Intel Microcode : installed"
+        fi
+    elif [ $cpuVendor == "AuthenticAMD" ]
+    then
+        echo -e "\n  $cyanstar CPU Detection :$color_other_yellow AMD$color_nocolor detected. Installing AMD microcode ..."
+        paru -Q amd-ucode > /dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            paru -Sy core/amd-ucode --needed --noconfirm
+            echo -e "\n  $greenplus AMD Microcode : installed"
+        fi
+    else
+        echo -e "\n  $cyanstar CPU Detection :$color_purple COULD NOT DETERMINE CPU - skipping microcode $color_nocolor "
+    fi
+}
+
 
 # execution
 if [ "$(id -u)" -ne 0 ]; then
@@ -355,5 +378,6 @@ install_kubectl
 install_kubectx
 install_aws_iam_authenticator
 install_eksctl
+check_architecture
 
 echo -e "\n  $blinkwarn COMPLETE : Reboot recommended. Proceed with any additional scripts after successful restart."
