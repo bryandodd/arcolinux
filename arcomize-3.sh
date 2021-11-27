@@ -49,6 +49,10 @@
 # static files
     smbOrigConf="https://git.samba.org/samba.git/?p=samba.git;a=blob_plain;f=examples/smb.conf.default;hb=HEAD"
     smbCustConf="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/smb.conf"
+    smbAddShare="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/addshare.py"
+    smbSetOpt="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/setoption.py"
+    smbPanic="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/panic-action"
+    smbUpdate="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/update-apparmor-samba-profile"
 
 findUser=$(logname)
 userId=$(id -u $findUser)
@@ -93,7 +97,7 @@ install_samba() {
     if test -f "$origConf"; then
         echo -e "$yellowstar Original smb.conf file found. Skipping download."
     else
-        sudo wget $smbOrigConf -O $origConf
+        eval wget -q $smbOrigConf -O $origConf
         echo -e "$greenplus Downloaded smb.conf.original to $origConf"
     fi
 
@@ -101,8 +105,40 @@ install_samba() {
     if test -f "$custConf"; then
         echo -e "$yellowstar Custom smb.conf file found. Skipping download."
     else
-        sudo wget $smbCustConf -O $custConf
+        eval wget -q $smbCustConf -O $custConf
         echo -e "$greenplus Downloaded smb.conf to $custConf"
+    fi
+
+    addpy="/usr/share/samba/addshare.py"
+    if test -f "$addpy"; then
+        echo -e "$yellowstar addshare.py found. Skipping download."
+    else
+        eval wget -q $smbAddShare -O $addpy
+        echo -e "$greenplus Downloaded addshare.py to $addpy"
+    fi
+
+    setpy="/usr/share/samba/setoption.py"
+    if test -f "$setpy"; then
+        echo -e "$yellowstar setoption.py found. Skipping download."
+    else
+        eval wget -q $smbSetOpt -O $setpy
+        echo -e "$greenplus Downloaded setoption.py to $setpy"
+    fi
+
+    panicAction="/usr/share/samba/panic-action"
+    if test -f "$panicAction"; then
+        echo -e "$yellowstar panic-action found. Skipping download."
+    else
+        eval wget -q $smbPanic -O $panicAction
+        echo -e "$greenplus Downloaded panic-action to $panicAction"
+    fi
+
+    smbAppArmor="/usr/share/samba/update-apparmor-samba-profile"
+    if test -f "$smbAppArmor"; then
+        echo -e "$yellowstar update-apparmor-samba-profile found. Skipping download."
+    else
+        eval wget -q $smbUpdate -O $smbAppArmor
+        echo -e "$greenplus Downloaded update-apparmor-samba-profile to $smbAppArmor"
     fi
 
     paru -Q thunar-shares-plugin > /dev/null 2>&1
@@ -121,6 +157,33 @@ notes_samba() {
     echo -e "   Use$color_other_yellow sudo systemctl start nmb.service$color_nocolor to start nmb service.\n"
 }
 
+install_impacket() {
+    # Install Impacket version 0.9.19 (line 912)
+    # TODO - NOT YET TESTED
+    eval wget -q https://github.com/SecureAuthCorp/impacket/releases/download/impacket_0_9_19/impacket-0.9.19.tar.gz -O /tmp-installer/impacket-0.9.19.tar.gz
+    eval tar xfz /tmp-installer/impacket-0.9.19.tar.gz -C /opt
+    chown -R $sudoUser:$sudoGroup /opt/impacket-0.9.19
+    chmod -R 755 /opt/impacket-0.9.19
+    cd /opt/impacket-0.9.19
+    eval pip3 install lsassy
+    eval pip2 install flask
+    eval pip2 install pyasn1
+    eval pip2 install pycryptodomex
+    eval pip2 install pyOpenSSL
+    eval pip2 install ldap3
+    eval pip2 install ldapdomaindump
+    eval pip2 install wheel
+    eval pip2 install .
+    rm -f /tmp-installer/impacket-0.9.19.tar.gz
+
+    paru -Q impacket > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy community/impacket --needed --noconfirm
+    fi
+
+    echo -e "\n  $greenplus impacket : impacket and supporting packages installed"
+}
+
 
 # execution
 if [ "$(id -u)" -ne 0 ]; then
@@ -137,6 +200,7 @@ echo " "
 
 install_golang
 install_samba
+#install_impacket (UNTESTED)
 
 notes_samba
 
