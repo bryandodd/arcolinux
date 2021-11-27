@@ -46,6 +46,10 @@
     blinkexclaim='\e[1;31m[\e[5;31m!!\e[0m\e[1;31m]\e[0m'
     fourblinkexclaim='\e[1;31m[\e[5;31m!!!!\e[0m\e[1;31m]\e[0m'
 
+# static files
+    smbOrigConf="https://git.samba.org/samba.git/?p=samba.git;a=blob_plain;f=examples/smb.conf.default;hb=HEAD"
+    smbCustConf="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/smb.conf"
+
 findUser=$(logname)
 userId=$(id -u $findUser)
 userGroup=$(id -g -n $findUser)
@@ -77,6 +81,46 @@ install_golang() {
     chown $findUser:$userGroup $zshFile
 }
 
+install_samba() {
+    # Install smb support
+    paru -Q samba > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy extra/samba --needed --noconfirm
+        echo -e "\n  $greenplus samba : installed"
+    fi
+
+    origConf="/etc/samba/smb.conf.original"
+    if test -f "$origConf"; then
+        echo -e "$yellowstar Original smb.conf file found. Skipping download."
+    else
+        sudo wget $smbOrigConf -O $origConf
+        echo -e "$greenplus Downloaded smb.conf.original to $origConf"
+    fi
+
+    custConf="/etc/samba/smb.conf"
+    if test -f "$custConf"; then
+        echo -e "$yellowstar Custom smb.conf file found. Skipping download."
+    else
+        sudo wget $smbCustConf -O $custConf
+        echo -e "$greenplus Downloaded smb.conf to $custConf"
+    fi
+
+    paru -Q thunar-shares-plugin > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy arcolinux_repo_3party/thunar-shares-plugin --needed --noconfirm
+        echo -e "\n  $greenplus samba : thunar share plugin"
+    fi
+}
+
+notes_samba() {
+    # Follow-up notes regarding use of Samba support:
+    echo -e "\n$cyanstar NOTES :: SAMBA"
+    echo -e "\n   Use$color_other_yellow sudo systemctl enable smb.service$color_nocolor to activate at startup."
+    echo -e "   Use$color_other_yellow sudo systemctl enable nmb.service$color_nocolor to activate at startup."
+    echo -e "\n   Use$color_other_yellow sudo systemctl start smb.service$color_nocolor to start smb service."
+    echo -e "   Use$color_other_yellow sudo systemctl start nmb.service$color_nocolor to start nmb service.\n"
+}
+
 
 # execution
 if [ "$(id -u)" -ne 0 ]; then
@@ -92,5 +136,8 @@ read -p "Press [ENTER] to continue..."
 echo " "
 
 install_golang
+install_samba
+
+notes_samba
 
 echo -e "\n  $blinkwarn COMPLETE : Reboot recommended. Proceed with any additional scripts after successful restart."
