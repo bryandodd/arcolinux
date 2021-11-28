@@ -18,7 +18,7 @@ Sections in this document:
 * [arcomize-2.sh](https://github.com/bryandodd/arcolinux#arcomize-2sh) - ZSH configuration and custom applications.
 * [custom aliases](https://github.com/bryandodd/arcolinux#customized-aliases)
 
-## arcomize-1.sh
+## arcomize-1.sh (Initial OS Config)
 
 There is one variable you may wish to change near the top (~line 67) of this script: `termPref`.  By default, the script will configure `kitty` as the default terminal emulator for the OS. At present, the only other supported option is `alacritty`.
 
@@ -62,7 +62,7 @@ The following modules will be executed in the order listed:
     * Note that conflicts will arise. You'll have to decide how you want to handle them during script execution.
 
 
-## arcomize-2.sh
+## arcomize-2.sh (ZSH Config and Custom Apps)
 
 The script will exit with an error if you do not run with `sudo`.
 
@@ -100,6 +100,53 @@ The following tools/applications will be installed in the order listed below. Th
     * For Kubernetes. Installed from the `community` repository. 
 
 
+## arcomize-3.sh (Penetration Testing Tools)
+
+The script will exit with an error if you do not run with `sudo`.
+
+The following tools/applications will be installed in the order listed below. These apps are specific to network analysis and penetration testing. Because these applications may be of interest in only limited circumstances and non-essential in most cases, they are installed via separate script.
+
+* golang
+    * Core compiler tools for the Go programming language.
+* samba / smb
+    * Samba support, including customized `smb.conf`. Not started or enabled by default. Start or enable-on-startup using the appropriate `systemctl` commands.
+* impacket
+    * [Impacket](https://github.com/SecureAuthCorp/impacket) version 0.9.19 and prerequisites. This is a collection of Python classes for working with network protocols. Installed via Python 2.
+* nmap
+    * [Network Mapper](https://nmap.org/) utility for network discovery and security auditing. Includes a tweaked version of the `http-shellshock` script.
+* jdk / jre
+    * jdk11-openjdk - includes jre
+* burpsuite
+    * Community Edition. Specifically, this is for web application penetration testing but has proven to be quite useful for web development and other tasks.
+* metasploit
+    * Penetration testing framework. See https://www.metasploit.com/.
+* custom python script
+    * `leetgen.py`
+        * This is a custom python script I wrote that accepts a string and generates a wordlist of the many possible permutations of that string using "leetspeak."
+* amass
+    * [OWASP Amass Project](https://github.com/OWASP/Amass) - performs network mapping of attack surfaces and external asset discovery using open source information gathering and active reconnaissance techniques.
+* whatweb
+    * [WhatWeb](https://github.com/urbanadventurer/WhatWeb) is a web scanner that tries to identify the various technologies used in the construction or hosting of websites. It can be stealthy or noisy, depending on the need.
+* nikto
+    * [Nikto](https://cirt.net/Nikto2) is another web scanner that focuses on enumerating web servers and attempts to identify potentially dangerous or vulnerable files/applications residing on its target. Not very stealthy.
+* dirbuster
+    * Web scanner which attempts to construct a site-map of a target website while looking for hidden or orphaned pages and directories. Graphical user interface.
+* gobuster
+    * Very similar to DirBuster (above) but without a UI. Written in `Go`.
+* searchsploit
+    * Command line search utility for [ExploitDB](https://www.exploit-db.com/searchsploit). Operates offline.
+* nessus
+    * Vulnerability scanner by [Tenable](https://www.tenable.com/products/nessus)
+* powersploit
+    * Collection of PowerShell modules useful in all phases of penetration testing. Includes modules for code execution, script modification, persistence, av evasion, exfiltration, privilege escalation, and reconnaissance. No longer actively maintained, but still useful.
+* hydra
+    * [THC-Hydra](https://github.com/vanhauser-thc/thc-hydra) is a parallelized login cracker that supports several different protocols.
+* responder
+    * [Responder](https://github.com/lgandx/Responder) is an LLMNR, NBT-NS and MDNS poisoner. It will answer to specific NBT-NS (NetBIOS Name Service) queries based on their name suffix. By default, the tool will only answer to File Server Service request, which is for SMB.
+* mitm6
+    * [mitm6](https://github.com/dirkjanm/mitm6) is a pentesting tool that exploits the default configuration of Windows to take over the default DNS server. It does this by replying to DHCPv6 messages, providing victims with a link-local IPv6 address and setting the attackers host as default DNS server. As DNS server, mitm6 will selectively reply to DNS queries of the attackers choosing and redirect the victims traffic to the attacker machine instead of the legitimate server.
+
+
 ## customized aliases
 The `.aliases` file which will be copied by the script can be found in `/configs/zsh/.aliases`. 
 
@@ -124,9 +171,11 @@ A few additional helpers have been added to the `.aliases` file outside of those
     * uses `duf` to present disk information in an easy to read format. See [muesli/duf](https://github.com/muesli/duf) on GitHub for details. 
 
 
-## fixes
+## fixes & updates
 
-* 2021-10-31
+* 2021-11-28 | v0.2.0
+    * add `arcomize-3.sh` - pentesting tools
+* 2021-10-31 | v0.1.2
     * a couple of the repo-hosted config files referenced my specific username in paths. Fixed so they'll be updated to the current user correctly after download from repo
     * cleaned up old comments
     * several various bug fixes

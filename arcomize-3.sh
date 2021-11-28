@@ -10,7 +10,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.1.2"
+    revision="0.2.0"
 
 # colors
     color_nocolor='\e[0m'
@@ -53,6 +53,7 @@
     smbSetOpt="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/setoption.py"
     smbPanic="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/panic-action"
     smbUpdate="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/smb/update-apparmor-samba-profile"
+    pyLeetGen="https://raw.githubusercontent.com/bryandodd/arcolinux/main/python/leetgen.py"
 
 findUser=$(logname)
 userId=$(id -u $findUser)
@@ -70,18 +71,18 @@ install_golang() {
     paru -Q go > /dev/null 2>&1
     if [[ $? -ne 0 ]]; then
         paru -Sy community/go --needed --noconfirm
-        echo -e "\n  $greenplus golang : installed"
+        echo -e "\n  $greenplus golang : installed \n"
     fi
 
     # Create local user 'go' path
     mkdir -p /home/$findUser/go/{bin,src}; chown -R $findUser:$findUser /home/$findUser/go
     echo -e "\n  $greenplus golang : created path /home/$finduser/go/bin"
-    echo -e "\n  $greenplus golang : created path /home/$finduser/go/src"
+    echo -e "\n  $greenplus golang : created path /home/$finduser/go/src  \n"
 
     # Register local user 'go' directories with path (update .zshrc)
     zshFile="/home/$findUser/.zshrc"
     sed -i '/^# reporting.*/i export GOPATH=\$HOME/go\nexport PATH=\$PATH:\$GOPATH/bin\n' $zshFile
-    echo -e "\n  $greenstar zshrc : PATH updated - now includes$color_other_yellow \$HOME/go/bin $color_nocolor"
+    echo -e "\n  $greenstar zshrc : PATH updated - now includes$color_other_yellow \$HOME/go/bin $color_nocolor \n"
     chown $findUser:$userGroup $zshFile
 }
 
@@ -90,7 +91,7 @@ install_samba() {
     paru -Q samba > /dev/null 2>&1
     if [[ $? -ne 0 ]]; then
         paru -Sy extra/samba --needed --noconfirm
-        echo -e "\n  $greenplus samba : installed"
+        echo -e "\n  $greenplus samba : installed \n"
     fi
 
     origConf="/etc/samba/smb.conf.original"
@@ -144,7 +145,7 @@ install_samba() {
     paru -Q thunar-shares-plugin > /dev/null 2>&1
     if [[ $? -ne 0 ]]; then
         paru -Sy arcolinux_repo_3party/thunar-shares-plugin --needed --noconfirm
-        echo -e "\n  $greenplus samba : thunar share plugin"
+        echo -e "\n  $greenplus samba : thunar share plugin \n"
     fi
 }
 
@@ -159,29 +160,256 @@ notes_samba() {
 
 install_impacket() {
     # Install Impacket version 0.9.19 (line 912)
-    # TODO - NOT YET TESTED
-    eval wget -q https://github.com/SecureAuthCorp/impacket/releases/download/impacket_0_9_19/impacket-0.9.19.tar.gz -O /tmp-installer/impacket-0.9.19.tar.gz
-    eval tar xfz /tmp-installer/impacket-0.9.19.tar.gz -C /opt
+    tmpDir="/home/$findUser/tmp-installer"
+    [ -d $tmpDir ] || mkdir $tmpDir
+
+    eval wget -q https://github.com/SecureAuthCorp/impacket/releases/download/impacket_0_9_19/impacket-0.9.19.tar.gz -O $tmpDir/impacket-0.9.19.tar.gz
+    eval tar xfz $tmpDir/impacket-0.9.19.tar.gz -C /opt
     chown -R $sudoUser:$sudoGroup /opt/impacket-0.9.19
     chmod -R 755 /opt/impacket-0.9.19
+
     cd /opt/impacket-0.9.19
     eval pip3 install lsassy
+    echo -e "\n  $greenplus pip3 : installed$color_other_yellow lsassy $color_nocolor \n"
     eval pip2 install flask
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow flask $color_nocolor \n"
     eval pip2 install pyasn1
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow pyasn1 $color_nocolor \n"
     eval pip2 install pycryptodomex
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow pycryptodomex $color_nocolor \n"
     eval pip2 install pyOpenSSL
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow pyOpenSSL $color_nocolor \n"
     eval pip2 install ldap3
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow ldap3 $color_nocolor \n"
     eval pip2 install ldapdomaindump
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow ldapdomaindump $color_nocolor \n"
     eval pip2 install wheel
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow wheel $color_nocolor \n"
     eval pip2 install .
-    rm -f /tmp-installer/impacket-0.9.19.tar.gz
+    echo -e "\n  $greenplus pip2 : installed$color_other_yellow impacket $color_nocolor \n"
+    rm -f $tmpDir/impacket-0.9.19.tar.gz
 
-    paru -Q impacket > /dev/null 2>&1
+    #paru -Q impacket > /dev/null 2>&1
+    #if [[ $? -ne 0 ]]; then
+    #    paru -Sy community/impacket --needed --noconfirm
+    #fi
+
+    echo -e "\n  $greenplus impacket : impacket and supporting packages installed \n"
+}
+
+install_nmap() {
+    # Install nmap and script-fix
+    paru -Q nmap > /dev/null 2>&1
     if [[ $? -ne 0 ]]; then
-        paru -Sy community/impacket --needed --noconfirm
+        paru -Sy extra/nmap --needed --noconfirm
+        echo -e "\n  $greenplus nmap : installed \n"
     fi
 
-    echo -e "\n  $greenplus impacket : impacket and supporting packages installed"
+    nmapScripts="/usr/share/nmap/scripts"
+    mv $nmapScripts/http-shellshock.nse $nmapScripts/http-shellshock-orig.nse
+    eval wget -q https://raw.githubusercontent.com/onomastus/pentest-tools/master/fixed-http-shellshock.nse -O $nmapScripts/http-shellshock.nse
+    echo -e "\n  $greenstar nmap : replaced http-shellshock scripts (original was suffixed with '-orig') \n"
+}
+
+install_java() {
+    # Install OpenJDK 11 (https://archlinux.org/packages/extra/x86_64/jdk11-openjdk/)
+    paru -Q jdk11-openjdk > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy extra/jdk11-openjdk --needed --noconfirm
+        echo -e "\n  $greenplus java : installed openjdk v11 \n"
+    fi
+}
+
+install_burpsuite() {
+    # Install Burpsuite CE
+    paru -Q burpsuite > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        sudo -u $findUser paru -Sy aur/burpsuite --needed --noconfirm
+        echo -e "\n  $greenplus burpsuite : installed \n"
+    fi
+}
+
+notes_burpsuite() {
+    # Follow-up notes regarding use of Burpsuite:
+    echo -e "\n$cyanstar NOTES :: BURPSUITE"
+    echo -e "\n   Consider using a Firefox addon called$color_other_yellow FoxyProxy Standard$color_nocolor."
+    echo -e "   This tool provides a very simple and easy-to-use interface for quickly enabling/disabling proxy traffic while using Burpsuite."
+    echo -e "\n   https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search\n"
+}
+
+install_metasploit() {
+    # Install Metasploit Framework (https://archlinux.org/packages/community/x86_64/metasploit/)
+    # see also: https://www.metasploit.com/
+    paru -Q metasploit > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy community/metasploit --needed --noconfirm
+        echo -e "\n  $greenplus metasploit : installed \n"
+    fi
+}
+
+install_custom_python() {
+    pyDir="/opt/python-scripts"
+    [ -d $pyDir ] || mkdir $pyDir
+
+    leetgen="/opt/python-scripts/leetgen.py"
+    if test -f "$leetgen"; then
+        echo -e "$yellowstar leetgen.py found. Skipping download."
+    else
+        eval wget -q $pyLeetGen -O $leetgen
+        echo -e "$greenplus Downloaded leetgen.py to $leetgen"
+
+        # symlink
+        ln -s /opt/python-scripts/leetgen.py /usr/local/bin/leetgen.py
+        echo -e "\n $greenstar leetgen.py : symbolic link created - /usr/local/bin/leetgen.py \n"
+    fi
+}
+
+install_amass() {
+    # Install OWASP Amass v3 (https://github.com/OWASP/Amass)
+    amassVer="v3.15.1"
+    amassPath="https://github.com/OWASP/Amass/releases/download/$amassVer/amass_linux_amd64.zip"
+
+    if [ -d /opt/amass_linux_amd64 ]; then
+        echo -e "$yellowstar amass already present. Skipping install."
+    else
+        tmpDir="/home/$findUser/tmp-installer"
+        [ -d $tmpDir ] || mkdir $tmpDir
+
+        eval wget -q $amassPath -O $tmpDir/amass_linux_amd64.zip
+        eval unzip $tmpDir/amass_linux_amd64.zip -d /opt
+        rm -f $tmpDir/amass_linux_amd64.zip
+        echo -e "\n $greenplus amass : installed to /opt"
+
+        # symlink
+        ln -s /opt/amass_linux_amd64/amass /usr/local/bin/amass
+        echo -e "\n $greenstar amass : symbolic link created - /usr/local/bin/amass \n"
+    fi
+}
+
+install_whatweb() {
+    # Install WhatWeb (https://github.com/urbanadventurer/WhatWeb)
+    paru -Q whatweb > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        sudo -u $findUser paru -Sy aur/whatweb --needed --noconfirm
+        echo -e "\n  $greenplus whatweb : installed \n"
+    fi
+}
+
+install_nikto() {
+    # Install Nikto (https://github.com/sullo/nikto)
+    # see also: https://cirt.net/Nikto2
+    paru -Q nikto > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy community/nikto --needed --noconfirm
+        echo -e "\n  $greenplus nikto : installed \n"
+    fi
+}
+
+install_dirbuster() {
+    # Install DirBuster
+    paru -Q dirbuster > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        sudo -u $findUser paru -Sy aur/dirbuster --needed --noconfirm
+        echo -e "\n  $greenplus dirbuster : installed \n"
+    fi
+}
+
+install_gobuster() {
+    # Install GoBuster (https://github.com/OJ/gobuster)
+    paru -Q gobuster > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        sudo -u $findUser paru -Sy aur/gobuster --needed --noconfirm
+        echo -e "\n  $greenplus gobuster : installed \n"
+    fi
+}
+
+install_searchsploit() {
+    # Install ExploitDB Archive (https://www.exploit-db.com/searchsploit)
+    paru -Q exploitdb > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy community/exploitdb --needed --noconfirm
+        echo -e "\n  $greenplus searchsploit : installed \n"
+    fi
+}
+
+install_nessus() {
+    # Install Nessus Scanner (https://www.tenable.com/products/nessus)
+    paru -Q nessus > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        sudo -u $findUser paru -Sy aur/nessus --needed --noconfirm
+        echo -e "\n  $greenplus nessus : installed \n"
+    fi
+}
+
+notes_nessus() {
+    # Follow-up notes regarding Nessus Scanner:
+    echo -e "\n$cyanstar NOTES :: NESSUS"
+    echo -e "\n   Use$color_other_yellow systemctl start nessusd$color_nocolor to launch the service."
+    echo -e "   Then go to$color_other_yellow https://localhost:8834$color_nocolor (or substitute hostname) in your browser to complete the setup and configure the scanner."
+    echo -e "\n   This software requires a license. You will be prompted during web setup to complete the registration for a free 'essentials' license key.\n"
+}
+
+download_powersploit() {
+    # Download the PowerSploit PowerShell library
+    powerSploitLib="/opt/powersploit"
+
+    if [ -d $powerSploitLib ]; then
+        echo -e "$yellowstar PowerSploit directory already exists. Skipping download."
+    else
+        mkdir $powerSploitLib
+        git clone https://github.com/PowerShellMafia/PowerSploit.git $powerSploitLib
+        # repo is archived - no reason to leave git repo config in place
+        rm -rf /opt/powersploit/.git
+        rm -rf /opt/powersploit/.gitignore
+        echo -e "\n  $greenplus powersploit : library downloaded to /opt/powersploit \n"
+    fi
+}
+
+install_hydra() {
+    # Install Hydra (https://github.com/vanhauser-thc/thc-hydra)
+    paru -Q hydra > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy community/hydra --needed --noconfirm
+        echo -e "\n  $greenplus hydra : installed \n"
+    fi
+}
+
+install_responder() {
+    # Install Responder (https://github.com/lgandx/Responder)
+    paru -Q responder > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        sudo -u $findUser paru -Sy aur/responder --needed --noconfirm
+        echo -e "\n  $greenplus responder : installed \n"
+    fi
+}
+
+notes_responder() {
+    # Follow-up notes regarding Responder:
+    echo -e "\n$cyanstar NOTES :: RESPONDER"
+    echo -e "\n   See$color_other_yellow /usr/share/responder/Responder.conf$color_nocolor for configuration changes. \n"
+}
+
+install_mitm6() {
+    # Install mitm6 (https://github.com/dirkjanm/mitm6)
+    # IPv6 man-in-the-middle attack
+    mitmDir="/opt/mitm6"
+    
+    if [ -d $mitmDir ]; then
+        echo -e "$yellowstar mitm6 directory already exists. Skipping install."
+    else
+        mkdir $mitmDir
+        git clone https://github.com/dirkjanm/mitm6.git $mitmDir
+        echo -e "\n  $greenplus mitm6 : download complete \n"
+
+        # install from source
+        cd $mitmDir
+        eval pip2 install -r requirements.txt
+        echo -e "\n  $greenplus pip2 : installed$color_other_yellow mitm6 requirements $color_nocolor \n"
+        eval python2 setup.py install
+        echo -e "\n  $greenplus python2 : installed$color_other_yellow mitm6 $color_nocolor \n"
+        eval pip2 install service_identity
+        echo -e "\n  $greenplus pip2 : installed$color_other_yellow mitm6 post-requirement :: service_identity $color_nocolor \n"
+    fi
 }
 
 
@@ -194,14 +422,34 @@ fi
 clear
 echo -e "\n$blinkwarn NOTICE : This script is not intended for UNATTENDED execution."
 echo -e "If you have not updated ALL packages, cancel this script with CTRL+C and do so first. THEN come back and run this script."
-echo -e "\nThis script is the second of multiple and depends on execution of arcomize-1.sh previously. After completion of this script, reboot the system and proceed with additional scripts."
+echo -e "\nThis script is the THIRD of multiple and depends on execution of both arcomize-1.sh AND arcomize-2.sh previously. After completion of this script, reboot the system and proceed with additional scripts."
+echo -e "\nSpecifically, this script installs an assortment of network analysis and penetration testing tools."
 read -p "Press [ENTER] to continue..."
 echo " "
 
 install_golang
 install_samba
-#install_impacket (UNTESTED)
+install_impacket
+install_nmap
+install_java
+install_burpsuite
+install_metasploit
+install_custom_python
+install_amass
+install_whatweb
+install_nikto
+install_dirbuster
+install_gobuster
+install_searchsploit
+install_nessus
+download_powersploit
+install_hydra
+install_responder
+install_mitm6
 
 notes_samba
+notes_burpsuite
+notes_nessus
+notes_responder
 
 echo -e "\n  $blinkwarn COMPLETE : Reboot recommended. Proceed with any additional scripts after successful restart."
