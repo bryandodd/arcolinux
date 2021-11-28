@@ -1,4 +1,10 @@
 
+# thunar
+alias open='thunar'
+
+# ip
+alias ip='ip -c'
+
 #list
 alias ls='ls --color=auto'
 alias la='ls -a'
