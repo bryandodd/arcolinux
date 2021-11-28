@@ -16,6 +16,7 @@ sudo chmod +x arcomize-1.sh
 Sections in this document:
 * [arcomize-1.sh](https://github.com/bryandodd/arcolinux#arcomize-1sh) - Initial OS configuration and settings.
 * [arcomize-2.sh](https://github.com/bryandodd/arcolinux#arcomize-2sh) - ZSH configuration and custom applications.
+* [arcomize-3.sh](https://github.com/bryandodd/arcolinux#arcomize-3sh) - Penetration testing utilities.
 * [custom aliases](https://github.com/bryandodd/arcolinux#customized-aliases)
 
 ## arcomize-1.sh (Initial OS Config)
@@ -154,6 +155,8 @@ The majority fo the aliases in this file come straight from ArcoLinux, but sever
 * `ll='exa -lah --icons --group-directories-first --time-style long-iso --git'`
 * `cat='bat -P'`
 * `cat-page=bat`
+* `alias open='thunar'`
+* `alias ip='ip -c'`
 
 A few additional helpers have been added to the `.aliases` file outside of those provided by ArcoLinux:
 * `encode` / `decode`
