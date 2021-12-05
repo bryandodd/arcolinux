@@ -12,6 +12,8 @@ You'll need to make each script executable ...
 ``` bash
 sudo chmod +x arcomize-1.sh
 ```
+
+Read the sections below to learn what is included in each script. Some of the modules have been commented out by default but may easily be enabled prior to execution. 
 ----
 Sections in this document:
 * [arcomize-1.sh](https://github.com/bryandodd/arcolinux#arcomize-1sh) - Initial OS configuration and settings.
@@ -27,14 +29,16 @@ The script will exit with an error if you do not run with `sudo`.
 
 The following modules will be executed in the order listed:
 
-* vm_install
+* vm_install *(disabled by default)*
     * `open-vm-tools` - comment out this module for bare metal installs.
 * required_apps
     * `xmlstarlet` - used throughout the script to make modifications to various XML config files
 * disable_power_mgmt
     * Sets Sleep-on-AC and Sleep-on-Batt to `0` then disables power management entirely. The purpose of setting the values to zero first is so that if power management is accidentally enabled later, there are no unexpected sleep events.
-* switch_to_lightdm
+* switch_to_lightdm *(disabled by default)*
     * SDDM is pretty and all, but meh. This will install LightDM if not already installed and activate it as the preferred login mechanism. Basic configuration settings are applied.
+* configure_sddm
+    * Installs `sddm-config-editor-git` and `arcolinux-sddm-sugar-candy-git` from Arcolinux repositories, then downloads custom configuration files from this repository to configure SDDM. 
 * xfce4_thunar_terminal
     * For XFCE's Thunar file manager, change the "Run" and "Open Terminal Here" options to use the preferred terminal emulator (see above).
 * xfce4_helpers_terminal
@@ -176,6 +180,9 @@ A few additional helpers have been added to the `.aliases` file outside of those
 
 ## fixes & updates
 
+* 2021-12-05 | v0.2.1
+    * add module for sddm configuration in `arcomize-1.sh`
+    * disabled `switch_to_lightdm` as default
 * 2021-11-28 | v0.2.0
     * add `arcomize-3.sh` - pentesting tools
 * 2021-10-31 | v0.1.2

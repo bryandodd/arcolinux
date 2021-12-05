@@ -10,7 +10,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.2.0"
+    revision="0.2.1"
 
 # colors
     color_nocolor='\e[0m'
