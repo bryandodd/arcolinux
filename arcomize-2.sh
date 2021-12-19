@@ -10,7 +10,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.2.1"
+    revision="0.2.2"
 
 # colors
     color_nocolor='\e[0m'
@@ -211,6 +211,36 @@ install_slack() {
     fi
 }
 
+install_remmina() {
+    # Install Remmina remote desktop client
+
+    paru -Q remmina > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy community/remmina --needed --noconfirm
+        echo -e "\n  $greenplus remmina : installed"
+    fi
+}
+
+install_btop() {
+    # Install btop++ resource monitor
+
+    paru -Q btop > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy community/btop --needed --noconfirm
+        echo -e "\n  $greenplus btop : installed"
+    fi
+}
+
+install_stacer() {
+    # Install Stacer resource monitor and optimizer
+
+    paru -Q stacer > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy arcolinux_repo_3party/stacer --needed --noconfirm
+        echo -e "\n  $greenplus Stacer : installed"
+    fi
+}
+
 install_exa() {
     # Install exa - 'ls' replacement
 
@@ -372,6 +402,9 @@ install_flameshot
 install_vscode
 install_msteams
 install_slack
+install_remmina
+install_btop
+#install_stacer
 install_exa
 install_bat
 install_oathtoolkit
