@@ -9,7 +9,7 @@
 #             idea somebody attempts using, incorporating, deconstructing, or anything else with this tool.
 
 # revision
-    revision="0.2.0"
+    revision="0.2.1"
 
 # colors
     color_nocolor='\e[0m'
@@ -59,6 +59,10 @@
     panel_conf="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/xfconf/xfce4-panel.xml"
 
     kitty_conf="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/kitty/kitty.conf"
+
+    sddm_background="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/sddm/darkkali.jpg"
+    sddm_theme_config="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/sddm/theme.conf"
+    sddm_config="https://raw.githubusercontent.com/bryandodd/arcolinux/main/configs/sddm/sddm.conf"
 
 
 findUser=$(logname)
@@ -226,6 +230,40 @@ EOF
     echo -e "\n  $blinkwarn Reboot required."
 }
 
+configure_sddm() {
+    # Configure SDDM
+
+    paru -Q sddm-config-editor-git > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy arcolinux_repo_3party/sddm-config-editor-git --needed --noconfirm
+        echo -e "\n  $greenplus sddm config editor : installed \n"
+    fi
+
+    paru -Q arcolinux-sddm-sugar-candy-git > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        paru -Sy arcolinux_repo/arcolinux-sddm-sugar-candy-git --needed --noconfirm
+        echo -e "\n  $greenplus sddm : sugar-candy theme installed \n"
+    fi
+
+    if [ -d /usr/share/sddm/themes/arcolinux-sugar-candy/ ]; then
+        sddmbg="/usr/share/sddm/themes/arcolinux-sugar-candy/Backgrounds/darkkali.jpg"
+        eval wget -q $sddm_background -O $sddmbg
+        echo -e "\n  $greenplus sddm-config : fetched background image \n"
+
+        themeConfig="/usr/share/sddm/themes/arcolinux-sugar-candy/theme.conf"
+        cp $themeConfig /usr/share/sddm/themes/arcolinux-sugar-candy/theme.orig-bak
+        eval wget -q $sddm_theme_config -O $themeConfig
+        echo -e "\n  $greenplus sddm-config : fetched theme config \n"
+
+        sddmConfig="/etc/sddm.conf"
+        cp $sddmConfig /etc/sddm.orig-bak
+        eval wget -q $sddm_config -O $sddmConfig
+        echo -e "\n  $greenplus sddm : fetched sddm config \n"
+    else
+        echo -e "$yellowstar SDDM theme directory not found. Skipping SDDM configuration."
+    fi
+}
+
 xfce4_thunar_terminal() {
     # Set Alacritty or Kitty as default terminal in Thunar config.
 
@@ -346,7 +384,10 @@ echo " "
 #vm_install
 required_apps
 disable_power_mgmt
-switch_to_lightdm
+
+#switch_to_lightdm
+configure_sddm
+
 xfce4_thunar_terminal
 xfce4_helpers_terminal
 delete_variety_app
