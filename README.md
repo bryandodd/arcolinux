@@ -85,6 +85,12 @@ The following tools/applications will be installed in the order listed below. Th
     * because work.
 * slack
     * also because work.
+* remmina
+    * An essential tool if you work with remote desktops. Supports multiple protocols - rdp, spice, vnc, ssh, http/https. Check out the [features list](https://remmina.org/remmina-features/). 
+* btop++
+    * C++ rewrite of the popular bashtop and bpytop terminal-based resource monitors. See [btop](https://github.com/aristocratos/btop) on GitHub.
+* stacer *(disabled by default)*
+    * A GUI resource monitor / optimizer tool. Added as an option in the file, but disabled by default. See [Stacer](https://github.com/oguzhaninan/Stacer) on GitHub.
 * exa
     * A modern `ls` replacement with some nice features. See [ogham/exa](https://github.com/ogham/exa) on GitHub, or [the.exa.website](https://the.exa.website/) for details. This script will alter an alias in the `.aliases` file: `ll='exa -lah --icons --group-directories-first --time-style long-iso --git'`
 * bat
@@ -180,6 +186,10 @@ A few additional helpers have been added to the `.aliases` file outside of those
 
 ## fixes & updates
 
+* 2021-12-19 | v0.2.2
+    * add [remmina](https://remmina.org) to `arcomize-2.sh`
+    * add [btop++](https://github.com/aristocratos/btop) to `arcomize-2.sh`
+    * add [Stacer](https://github.com/oguzhaninan/Stacer) to `arcomize-2.sh` as an option - disabled by default
 * 2021-12-05 | v0.2.1
     * add module for sddm configuration in `arcomize-1.sh`
     * disabled `switch_to_lightdm` as default
